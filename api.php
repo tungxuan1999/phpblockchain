@@ -60,9 +60,24 @@ class api extends restful_api {
                 }
             }
             else{
-                $this->response(200, $data['data']);
+                $this->response(200, $data);
             }
-            $this->response(200, $this->login->CheckToken($username,$token));
+        }
+    }
+
+    function CheckAccountTransfer()
+    {
+        if ($this->method == 'GET'){
+            $username = isset($_GET['username']) ? $_GET['username'] : die();
+
+            if($this->testCoin->getData($username)=="null")
+            {
+                $this->response(200, array("success"=>false,"data"=>array("name"=>null,"phone"=>null,"error"=>"Account Exchange has not created")));
+            }
+            else{
+                $data = $this->login->GetDetailNamePhone($username);
+                $this->response(200, $data);
+            }
         }
     }
 
@@ -77,7 +92,7 @@ class api extends restful_api {
                 $this->response(200, $this->testCoin->CreateAccount($username));
             }
             else{
-                $this->response(200, $data['data']);
+                $this->response(200, $data);
             }
         }
     }
@@ -94,7 +109,7 @@ class api extends restful_api {
                 $this->response(200, $this->testCoin->rechargeAccount($username,$amount));
             }
             else{
-                $this->response(200, $data['data']);
+                $this->response(200, $data);
             }
         }
     }
@@ -102,7 +117,7 @@ class api extends restful_api {
     function TransferAccountExchange()
     {
         if ($this->method == 'GET'){
-            $username = isset($_GET['username']) ? $_GET['username'] : die();
+            $username = isset($_GET['username1']) ? $_GET['username1'] : die();
             $token = isset($_GET['token']) ? $_GET['token'] : die();
             $amount = isset($_GET['amount']) ? $_GET['amount'] : die();
             $username2 = isset($_GET['username2']) ? $_GET['username2'] : die();
@@ -112,7 +127,7 @@ class api extends restful_api {
                 $this->response(200, $this->testCoin->transferAccount($username,$username2,$amount));
             }
             else{
-                $this->response(200, $data['data']);
+                $this->response(200, $data);
             }
         }
     }

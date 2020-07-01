@@ -29,7 +29,7 @@ class Exchange{
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "PATCH",
-            CURLOPT_POSTFIELDS =>"{\r\n    \"$block->index\": {\r\n        \"nonce\": $block->nonce,\r\n        \"index\": $block->index,\r\n        \"timestamp\": $block->timestamp,\r\n        \"data\": {\r\n            \"amount\": \"".$ar['amount']."\",\r\n            \"result\": \"".$ar['result']."\"\r\n        },\r\n        \"previousHash\": \"$previousHash\"\r\n,\r\n        \"hash\": \"$block->hash\"\r\n    }\r\n}",
+            CURLOPT_POSTFIELDS =>"{\r\n    \"A$block->index\": {\r\n        \"nonce\": $block->nonce,\r\n        \"index\": $block->index,\r\n        \"timestamp\": $block->timestamp,\r\n        \"data\": {\r\n            \"amount\": \"".$ar['amount']."\",\r\n            \"result\": \"".$ar['result']."\",\r\n            \"time\": \"".$ar['time']."\"\r\n        },\r\n        \"previousHash\": \"$previousHash\"\r\n,\r\n        \"hash\": \"$block->hash\"\r\n    }\r\n}",
             CURLOPT_HTTPHEADER => array(
                 "Content-Type: application/json"
             ),
@@ -103,7 +103,8 @@ class Exchange{
             $stt = 0;
             $json = json_decode($data,true);
             while(true){
-                if(isset($json[$stt+1]))
+                $loca = $stt+1;
+                if(isset($json['A'.$loca]))
                 {
                     $stt++;
                 }
@@ -113,9 +114,9 @@ class Exchange{
             }
             date_default_timezone_set("Asia/Ho_chi_minh");
             $time = date("H:i:s d-m-Y");
-            $abc = (int) $json[$stt]['data']['amount']+$amount;
-            $acd = array("amount"=>"$abc","result"=>"Recharge successfully: +$amount");
-            $this->push($account,new Block($stt+1,strtotime($time),$acd),$json[$stt]['hash']);
+            $abc = (int) $json['A'.$stt]['data']['amount']+$amount;
+            $acd = array("amount"=>"$abc","result"=>"Recharge successfully: +$amount","time"=>$time);
+            $this->push($account,new Block($stt+1,strtotime($time),$acd),$json['A'.$stt]['hash']);
             return array("success"=>true,"data"=>"Recharge successfully +".$amount);
         }
     }
@@ -132,7 +133,8 @@ class Exchange{
             $stt = 0;
             $json = json_decode($data1,true);
             while(true){
-                if(isset($json[$stt+1]))
+                $loca = $stt+1;
+                if(isset($json['A'.$loca]))
                 {
                     $stt++;
                 }
@@ -140,23 +142,24 @@ class Exchange{
                     break;
                 }
             }
-            if((int) $json[$stt]['data']['amount'] < (int) $amount)
+            if((int) $json['A'.$stt]['data']['amount'] < (int) $amount || (int) $amount <= 0)
             {
-                return array("success"=>false,"data"=>"Amount (".(int) $json[$stt]['data']['amount'].") in account must >= $amount");
+                return array("success"=>false,"data"=>"Amount (".(int) $json['A'.$stt]['data']['amount'].") in account must >= $amount and money transfer ($amount) > 0");
             }
             else{
                 date_default_timezone_set("Asia/Ho_chi_minh");
                 $time = date("H:i:s d-m-Y");
-                $abc = (int) $json[$stt]['data']['amount']-$amount;
-                $acd = array("amount"=>"$abc","result"=>"Transfer successfully to $account2: -$amount");
-                $this->push($account1,new Block($stt+1,strtotime($time),$acd),$json[$stt]['hash']);
+                $abc = (int) $json['A'.$stt]['data']['amount']-$amount;
+                $acd = array("amount"=>"$abc","result"=>"Transfer successfully to $account2: -$amount","time"=>$time);
+                $this->push($account1,new Block($stt+1,strtotime($time),$acd),$json['A'.$stt]['hash']);
                 if($data2 == 'null')
                 {
                     $data1 = $this->getData($account1);
                     $stt = 0;
                     $json = json_decode($data1,true);
                     while(true){
-                        if(isset($json[$stt+1]))
+                        $loca = $stt+1;
+                        if(isset($json['A'.$loca]))
                         {
                             $stt++;
                         }
@@ -166,16 +169,17 @@ class Exchange{
                     }
                     date_default_timezone_set("Asia/Ho_chi_minh");
                     $time = date("H:i:s d-m-Y");
-                    $abc = (int) $json[$stt]['data']['amount']+$amount;
-                    $acd = array("amount"=>"$abc","result"=>"Transfer successfully to $account2 but $account2 has not been existed: +$amount");
-                    $this->push($account1,new Block($stt+1,strtotime($time),$acd),$json[$stt]['hash']);
-                    return array("success"=>true,"data"=>"Transfer successfully to $account2 but $account2 has not been existed: +$amount");
+                    $abc = (int) $json['A'.$stt]['data']['amount']+$amount;
+                    $acd = array("amount"=>"$abc","result"=>"Transfer successfully to $account2 but $account2 has not been existed: +$amount","time"=>$time);
+                    $this->push($account1,new Block($stt+1,strtotime($time),$acd),$json['A'.$stt]['hash']);
+                    return array("success"=>true,"data"=>"Transfer successfully to $account2 but $account2 has not been existed");
                 }
                 else{
                     $stt = 0;
                     $json = json_decode($data2,true);
                     while(true){
-                        if(isset($json[$stt+1]))
+                        $loca = $stt+1;
+                        if(isset($json['A'.$loca]))
                         {
                             $stt++;
                         }
@@ -185,10 +189,10 @@ class Exchange{
                     }
                     date_default_timezone_set("Asia/Ho_chi_minh");
                     $time = date("H:i:s d-m-Y");
-                    $abc = (int) $json[$stt]['data']['amount']+$amount;
-                    $acd = array("amount"=>"$abc","result"=>"Receive successful money from $account1: +$amount");
-                    $this->push($account2,new Block($stt+1,strtotime($time),$acd),$json[$stt]['hash']);
-                    return array("success"=>false,"data"=>"$account2 receive successful money from $account1: +$amount");
+                    $abc = (int) $json['A'.$stt]['data']['amount']+$amount;
+                    $acd = array("amount"=>"$abc","result"=>"Receive successful money from $account1: +$amount","time"=>$time);
+                    $this->push($account2,new Block($stt+1,strtotime($time),$acd),$json['A'.$stt]['hash']);
+                    return array("success"=>true,"data"=>"Transfer successfully to $account2");
                 }
             }
         }

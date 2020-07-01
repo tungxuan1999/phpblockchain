@@ -97,13 +97,13 @@ class Login{
             return array("success"=>false,"data"=>"$username has not been created");
         }
         else{
-            $data = json_decode($this->loginDAO->CreateAccount($username,$password,$name,$address,$phone),true);
+            $data = json_decode($this->loginDAO->GetDetailAccount($username),true);
             if(isset($data['error']))
             {
-                return array("success"=>false,"data"=>$data['error']);
+                return array("success"=>false,"data"=>array("name"=>null,"phone"=>null,"error"=>$data['error']));
             }
             else{
-                return array("success"=>true,"data"=>array("name"=>$data['name'],"phone"=>$data['phone']));
+                return array("success"=>true,"data"=>array("name"=>$data['name'],"phone"=>$data['phone'],"error"=>null));
             }
         }
     }

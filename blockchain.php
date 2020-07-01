@@ -27,7 +27,7 @@ class BlockChain
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "PATCH",
-            CURLOPT_POSTFIELDS =>"{\r\n    \"$block->index\": {\r\n        \"nonce\": $block->nonce,\r\n        \"index\": $block->index,\r\n        \"timestamp\": $block->timestamp,\r\n        \"data\": {\r\n            \"amount\": \"".$ar['amount']."\",\r\n            \"result\": \"".$ar['result']."\"\r\n        },\r\n        \"previousHash\": \"$previousHash\"\r\n,\r\n        \"hash\": \"$block->hash\"\r\n    }\r\n}",
+            CURLOPT_POSTFIELDS =>"{\r\n    \"A$block->index\": {\r\n        \"nonce\": $block->nonce,\r\n        \"index\": $block->index,\r\n        \"timestamp\": $block->timestamp,\r\n        \"data\": {\r\n            \"amount\": \"".$ar['amount']."\",\r\n            \"result\": \"".$ar['result']."\",\r\n            \"time\": \"".$ar['time']."\"\r\n        },\r\n        \"previousHash\": \"$previousHash\"\r\n,\r\n        \"hash\": \"$block->hash\"\r\n    }\r\n}",
             CURLOPT_HTTPHEADER => array(
                 "Content-Type: application/json"
             ),
@@ -53,8 +53,8 @@ class BlockChain
     private function createGenesisBlock($name)
     {
         date_default_timezone_set("Asia/Ho_chi_minh");
-        $data = array("amount"=>"0","result"=>"Create Account");
         $time = date("H:i:s d-m-Y");
+        $data = array("amount"=>"0","result"=>"Create Account","time"=>$time);
         $b = new Block(0, strtotime($time), $data);
         $this->pushData($name,$b);
         return $b;
