@@ -95,29 +95,35 @@ class Exchange{
 
     public function rechargeAccount($account,$amount)
     {
-        $data = $this->getData($account);
-        if($data == "null"){
-            return array("success"=>false,"data"=>"$account has not been created");
+        if((int) $amount > 0)
+        {
+            $data = $this->getData($account);
+            if($data == "null"){
+                return array("success"=>false,"data"=>"$account has not been created");
+            }
+            else{
+                $stt = 0;
+                $json = json_decode($data,true);
+                while(true){
+                    $loca = $stt+1;
+                    if(isset($json['A'.$loca]))
+                    {
+                        $stt++;
+                    }
+                    else{
+                        break;
+                    }
+                }
+                date_default_timezone_set("Asia/Ho_chi_minh");
+                $time = date("H:i:s d-m-Y");
+                $abc = (int) $json['A'.$stt]['data']['amount']+$amount;
+                $acd = array("amount"=>"$abc","result"=>"Recharge successfully: +$amount","time"=>$time);
+                $this->push($account,new Block($stt+1,strtotime($time),$acd),$json['A'.$stt]['hash']);
+                return array("success"=>true,"data"=>"Recharge successfully +".$amount);
+            }
         }
         else{
-            $stt = 0;
-            $json = json_decode($data,true);
-            while(true){
-                $loca = $stt+1;
-                if(isset($json['A'.$loca]))
-                {
-                    $stt++;
-                }
-                else{
-                    break;
-                }
-            }
-            date_default_timezone_set("Asia/Ho_chi_minh");
-            $time = date("H:i:s d-m-Y");
-            $abc = (int) $json['A'.$stt]['data']['amount']+$amount;
-            $acd = array("amount"=>"$abc","result"=>"Recharge successfully: +$amount","time"=>$time);
-            $this->push($account,new Block($stt+1,strtotime($time),$acd),$json['A'.$stt]['hash']);
-            return array("success"=>true,"data"=>"Recharge successfully +".$amount);
+            return array("success"=>false,"data"=>"Amount ($amount) must > 0");
         }
     }
 
