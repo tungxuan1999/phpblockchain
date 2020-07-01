@@ -33,6 +33,16 @@ class api extends restful_api {
         }
     }
 
+    function ChangePassAccount()
+    {
+        if ($this->method == 'GET'){
+            $username = isset($_GET['username']) ? $_GET['username'] : die();
+            $oldpass = isset($_GET['oldpass']) ? $_GET['oldpass'] : die();
+            $newpass = isset($_GET['newpass']) ? $_GET['newpass'] : die();
+            $this->response(200, $this->login->ChangePassword($username,$oldpass,$newpass));
+        }
+    }
+
     function CheckAccountExchange()
     {
         if ($this->method == 'GET'){

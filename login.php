@@ -52,6 +52,40 @@ class Login{
                         return array("success"=>true,"data"=>$token);
                     }
                 }
+                else{
+                    return array("success"=>false,"data"=>"Password not correct");
+                }
+            }
+        }
+    }
+
+    public function ChangePassword($username,$oldpass,$newpass)
+    {
+        if($this->loginDAO->GetDetailAccount($username) == "null")
+        {
+            return array("success"=>false,"data"=>"$username has not been created");
+        }
+        else{
+            $data = json_decode($this->loginDAO->GetDetailAccount($username),true);
+            if(isset($data['error']))
+            {
+                return array("success"=>false,"data"=>$data['error']);
+            }
+            else{
+                if($data['password'] == $oldpass)
+                {
+                    $data = json_decode($this->loginDAO->ChangePassword($username,$newpass),true);
+                    if(isset($data['error']))
+                    {
+                        return array("success"=>false,"data"=>$data['error']);
+                    }
+                    else{
+                        return array("success"=>true,"data"=>"Change pass success");
+                    }
+                }
+                else{
+                    return array("success"=>false,"data"=>"Password not correct");
+                }
             }
         }
     }
